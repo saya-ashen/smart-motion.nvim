@@ -29,11 +29,11 @@ function M.run()
 			-- Skip lines inside closed folds to match Neovim's native j/k behavior
 			-- where a fold counts as a single line
 			-- foldclosed() returns -1 if line is not in a fold, otherwise returns the first line of the fold
-			local fold_start = vim.fn.foldclosed(line_number + 1)
-			if fold_start ~= -1 then
-				-- Line is inside a closed fold, skip to the end of the fold
-				local fold_end = vim.fn.foldclosedend(line_number + 1)
-				line_number = fold_end  -- Skip to end of fold (1-based), will be converted back to 0-based
+			if vim.fn.foldclosed(line_number + 1) ~= -1 then
+				-- Line is inside a closed fold, skip to the line after the fold
+				-- foldclosedend() returns 1-based line number of last line in fold
+				-- Since our line_number is 0-based, foldclosedend() directly gives us the next 0-based index
+				line_number = vim.fn.foldclosedend(line_number + 1)
 			else
 				-- Line is visible (not in a closed fold), collect it
 				local line = vim.api.nvim_buf_get_lines(ctx.bufnr, line_number, line_number + 1, false)[1]
