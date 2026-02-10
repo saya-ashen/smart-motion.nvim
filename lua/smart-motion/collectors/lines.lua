@@ -30,7 +30,6 @@ function M.run()
 			-- where a fold counts as a single line but is still jumpable
 			-- foldclosed() returns -1 if line is not in a fold, otherwise returns the first line of the fold
 			local fold_start = vim.fn.foldclosed(line_number + 1)
-			
 			if fold_start ~= -1 then
 				-- Line is inside a closed fold
 				-- Check if this is the FIRST line of the fold
