@@ -32,10 +32,11 @@ function M.run()
 			if vim.fn.foldclosed(line_number + 1) ~= -1 then
 				-- Line is inside a closed fold, skip to the line after the fold
 				-- foldclosedend() returns the 1-based line number of the last line in the fold
-				-- When we set line_number to this value, we're setting it to what will be
-				-- the 0-based index of the first line AFTER the fold in the next iteration
-				-- Example: fold on 1-based lines 10-20 → foldclosedend returns 20 → 
-				-- line_number becomes 20 (0-based) which is 1-based line 21 (after fold)
+				-- Setting line_number to this value skips past the fold because:
+				-- Example: fold on 1-based lines 10-20
+				--   foldclosedend(10) returns 20
+				--   line_number = 20 (interpreting as 0-based index)
+				--   Next iteration: foldclosed(20+1) = foldclosed(21) checks 1-based line 21 (after fold)
 				line_number = vim.fn.foldclosedend(line_number + 1)
 			else
 				-- Line is visible (not in a closed fold), collect it
