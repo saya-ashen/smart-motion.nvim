@@ -86,10 +86,6 @@ function M.run(ctx, cfg, motion_state)
 		return
 	end
 
-	-- Open any folds at the target position
-	if not is_op_pending then
-		vim.cmd("normal! zv")
-	end
 
 	log.debug(string.format("Cursor moved to line %d, col %d", row, col))
 end
