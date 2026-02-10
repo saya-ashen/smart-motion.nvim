@@ -25,13 +25,18 @@ function M.run()
 		local end_line = math.min(total_lines - 1, cursor_line + window_size)
 
 		for line_number = start_line, end_line do
-			local line = vim.api.nvim_buf_get_lines(ctx.bufnr, line_number, line_number + 1, false)[1]
+			-- Skip lines inside closed folds to match Neovim's native j/k behavior
+			-- where a fold counts as a single line
+			local fold_start = vim.fn.foldclosed(line_number + 1)
+			if fold_start == -1 then
+				local line = vim.api.nvim_buf_get_lines(ctx.bufnr, line_number, line_number + 1, false)[1]
 
-			if line then
-				coroutine.yield({
-					line_number = line_number,
-					text = line,
-				})
+				if line then
+					coroutine.yield({
+						line_number = line_number,
+						text = line,
+					})
+				end
 			end
 		end
 	end)
