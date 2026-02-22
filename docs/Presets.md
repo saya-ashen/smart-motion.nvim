@@ -2,6 +2,8 @@
 
 SmartMotion ships with **13 presets** containing **140+ keybindings**. Each preset is a logical group of related motions. Enable what you need, disable what you don't.
 
+> **Every preset can be customized.** Want to make `f` single-char? Words bidirectional? Search line-constrained? See the [Recipes](Recipes.md) guide for practical examples.
+
 ---
 
 ## Quick Reference
@@ -44,7 +46,10 @@ Press w → labels appear on all words ahead → press 'f' → cursor jumps to t
 ```
 >w     indent from cursor to labeled word
 gUw    uppercase from cursor to labeled word
+dw     delete from cursor to (but not including) labeled word — matches native vim
 ```
+
+> **Native vim behavior:** In operator-pending mode, `w` is an **exclusive** motion — the first character of the target word is not included in the operation. This matches what you'd expect from `dw`, `yw`, `cw`, etc. in stock neovim.
 
 ---
 

@@ -14,7 +14,9 @@ function presets.words(exclude)
 			visualizer = "hint_start",
 			action = "jump_centered",
 			map = true,
-			modes = { "n", "v", "o" },
+			-- In op-pending mode, w is an exclusive motion (dw stops before the target word start),
+			-- matching native vim behavior where dw does not eat the first char of the next word.
+			modes = { "n", "v", o = { exclude_target = true } },
 			metadata = {
 				label = "Jump to Start of Word after cursor",
 				description = "Jumps to the start of a visible word target using labels after the cursor",
@@ -80,6 +82,9 @@ function presets.lines(exclude)
 			metadata = {
 				label = "Jump to Line after cursor",
 				description = "Jumps to the start of the line after the cursor",
+				motion_state = {
+					skip_jumplist = true,
+				},
 			},
 		},
 		k = {
@@ -95,6 +100,9 @@ function presets.lines(exclude)
 			metadata = {
 				label = "Jump to Line before cursor",
 				description = "Jumps to the start of the line before the cursor",
+				motion_state = {
+					skip_jumplist = true,
+				},
 			},
 		},
 	}, exclude)
@@ -1291,6 +1299,21 @@ function presets._register(motions_list, user_overrides)
 
 		-- Merge override into motion config if table provider
 		if type(override) == "table" then
+			-- Route label customization keys into metadata.motion_state
+			-- to avoid conflict with the motion entry's `keys` property (used for action key mapping)
+			if override.keys or override.exclude_keys then
+				override = vim.tbl_deep_extend("force", {}, override)
+				override.metadata = override.metadata or {}
+				override.metadata.motion_state = override.metadata.motion_state or {}
+				if override.keys then
+					override.metadata.motion_state.label_keys = override.keys
+					override.keys = nil
+				end
+				if override.exclude_keys then
+					override.metadata.motion_state.exclude_label_keys = override.exclude_keys
+					override.exclude_keys = nil
+				end
+			end
 			final_motions[name] = vim.tbl_deep_extend("force", motion, override)
 		else
 			-- No override, use default motion

@@ -53,7 +53,10 @@ function M.run(ctx, cfg, motion_state)
 	end
 
 	-- Save current position to jumplist before moving
-	vim.cmd("normal! m'")
+	-- Skip for motions like j/k that shouldn't pollute the jumplist (matching native vim)
+	if cfg.save_to_jumplist and not motion_state.skip_jumplist then
+		vim.cmd("normal! m'")
+	end
 
 	local current_winid = vim.api.nvim_get_current_win()
 	if winid and winid ~= current_winid then
@@ -86,6 +89,10 @@ function M.run(ctx, cfg, motion_state)
 		return
 	end
 
+	-- Open any folds at the target position
+	if not is_op_pending and cfg.open_folds_on_jump then
+		vim.cmd("normal! zv")
+	end
 
 	log.debug(string.format("Cursor moved to line %d, col %d", row, col))
 end

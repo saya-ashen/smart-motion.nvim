@@ -91,7 +91,10 @@ function M._navigate(entry)
 	local bufnr = target.metadata and target.metadata.bufnr
 	local filepath = entry.filepath
 
-	vim.cmd("normal! m'")
+	local config = require("smart-motion.config")
+	if not config.validated or config.validated.save_to_jumplist then
+		vim.cmd("normal! m'")
+	end
 
 	if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
 		local winid = M._find_win_for_buf(bufnr)
@@ -115,7 +118,10 @@ function M._navigate(entry)
 	end
 	local col = math.max(target.start_pos.col, 0)
 	pcall(vim.api.nvim_win_set_cursor, 0, { row, col })
-	vim.cmd("normal! zv")
+	local config = require("smart-motion.config")
+	if not config.validated or config.validated.open_folds_on_jump then
+		vim.cmd("normal! zv")
+	end
 end
 
 --- Executes a remote action on a history entry's target.

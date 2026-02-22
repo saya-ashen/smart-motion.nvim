@@ -21,6 +21,13 @@
 ---@field disable_dim_background boolean
 ---@field native_search? boolean
 ---@field count_behavior? "target" | "native"
+---@field open_folds_on_jump? boolean
+---@field save_to_jumplist? boolean
+---@field max_pins? integer
+---@field search_timeout_ms? number
+---@field search_idle_timeout_ms? number
+---@field yank_highlight_duration? number
+---@field history_max_age_days? number
 
 ---@class SmartMotionPresets
 ---@field words? true | SmartMotionPresetKey.Words[]
@@ -113,6 +120,7 @@
 --- @field ts_yield_children? boolean -- Yield named children of matched container nodes
 --- @field ts_around_separator? boolean -- Expand child ranges to include surrounding separators
 --- @field diagnostic_severity? integer|integer[] -- Filter diagnostics by severity
+--- @field skip_jumplist? boolean -- Skip saving to jumplist (for motions like j/k that match native vim behavior)
 --- @field motion SmartMotionMotionEntry
 
 ---@class SmartMotionTarget

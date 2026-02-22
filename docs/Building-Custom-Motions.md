@@ -1,5 +1,7 @@
 # Building Custom Motions
 
+> **Want to tweak an existing motion instead of building from scratch?** Start with the [Recipes](Recipes.md) guide for practical examples like making `f` single-char, words bidirectional, or search line-constrained.
+
 This is where SmartMotion becomes yours.
 
 Every built-in motion uses the same system you're about to learn. There's no magic, no internal APIs. Just a pipeline you can configure however you want.
@@ -396,6 +398,55 @@ See **[API Reference](API-Reference.md)** for all motion_state fields.
 
 ---
 
+## Per-Mode motion_state Overrides
+
+Sometimes you want a motion to behave differently depending on which vim mode it was triggered from. The classic example is `w`: in normal and visual mode it should jump to the word start, but in operator-pending mode `dw` should stop *before* the word (exclusive), matching native vim.
+
+Use string keys in the `modes` table to declare per-mode `motion_state` overrides:
+
+```lua
+require("smart-motion").register_motion("w", {
+  composable = true,
+  collector = "lines",
+  extractor = "words",
+  filter = "filter_words_after_cursor",
+  visualizer = "hint_start",
+  action = "jump_centered",
+  map = true,
+  -- "n" and "v" are registered normally
+  -- in operator-pending mode, exclude_target = true is applied automatically
+  modes = { "n", "v", o = { exclude_target = true } },
+})
+```
+
+Array entries are plain mode strings. String-keyed entries (like `o = { ... }`) do two things:
+
+1. Register the keymap for that mode (same as adding `"o"` to the array)
+2. Merge the given fields into `motion_state` when that mode is active
+
+The override is applied **after** the standard `metadata.motion_state` merge, so it always wins.
+
+**The mode key is matched to the normalized vim mode character:**
+
+| Key in `modes` | Matches |
+|---------------|---------|
+| `"n"` | Normal mode |
+| `"v"` | Visual mode |
+| `"o"` | Operator-pending (`vim.fn.mode(true)` returns `"no"`, normalized to `"o"`) |
+| `"i"` | Insert mode |
+
+You can override any `motion_state` field this way, not just `exclude_target`:
+
+```lua
+-- disable multi-window in op-pending (operators expect same-buffer motion)
+modes = { "n", "v", o = { multi_window = false } }
+
+-- use a different word pattern in visual mode
+modes = { "n", v = { word_pattern = "\\k\\+" } }
+```
+
+---
+
 ## Registering in Your Config
 
 With lazy.nvim:
@@ -601,6 +652,10 @@ Now `ghw`, `ghj`, `ghs` etc. all work automatically.
 ---
 
 ## Next Steps
+
+→ **[Recipes](Recipes.md)**: Practical examples for customizing built-in motions
+
+→ **[Advanced Recipes](Advanced-Recipes.md)**: Treesitter motions, text objects, composable operators
 
 → **[Pipeline Architecture](Pipeline-Architecture.md)**: Deep dive into each pipeline stage
 

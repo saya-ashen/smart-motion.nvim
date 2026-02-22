@@ -319,31 +319,33 @@ Word and line motions stay single-window by default. See [Customizing Motions](#
 
 ## Customizing Motions
 
-Individual motions can be tweaked by passing a table instead of `true`. For example, make `f`/`F` work across multiple lines:
+Every motion is **Collector -> Extractor -> Filter -> Visualizer -> Action**. Swap any part:
 
 ```lua
 presets = {
   search = {
-    f = { filter = "filter_words_after_cursor" },
-    F = { filter = "filter_words_before_cursor" },
+    f = { filter = "filter_words_after_cursor" },  -- make f multiline
+    F = { filter = "filter_words_before_cursor" },  -- make F multiline
   },
 }
 ```
 
-Add multi-window to find motions:
+Here's a taste of what you can change with a single override:
 
-```lua
-presets = {
-  search = {
-    f = {
-      filter = "filter_words_after_cursor",
-      metadata = { motion_state = { multi_window = true } },
-    },
-  },
-}
-```
+| I want to...                        | Change this   | Example override                             |
+|-------------------------------------|---------------|----------------------------------------------|
+| Make `f` single-char                | extractor     | `extractor = "text_search_1_char"`           |
+| Make `f` multiline                  | filter        | `filter = "filter_words_after_cursor"`       |
+| Make `f` a live search              | extractor     | `extractor = "live_search"`                  |
+| Jump to camelCase boundaries        | metadata      | `word_pattern = [[\v(\u\l+\|\l+\|\u+\|\d+)]]` |
+| Make word jump bidirectional        | filter        | `filter = "filter_words_around_cursor"`      |
+| Delete without moving cursor        | action        | `action = "remote_delete"`                   |
+| Make any motion cross-window        | metadata      | `multi_window = true`                        |
+| Auto-jump to closest target         | filter        | `filter = "first_target"`                    |
+| Customize labels for a motion       | keys          | `keys = "fdsarewq"`                          |
+| Exclude keys from labels            | exclude_keys  | `exclude_keys = "jk"`                        |
 
-You can override any motion property: `extractor`, `filter`, `visualizer`, `action`, `modes`, etc.
+See the [Recipes](https://github.com/FluxxField/smart-motion.nvim/wiki/Recipes) guide for 20+ practical examples, or [Advanced Recipes](https://github.com/FluxxField/smart-motion.nvim/wiki/Advanced-Recipes) for treesitter motions, custom text objects, and composable operators.
 
 ---
 
@@ -415,6 +417,13 @@ SmartMotion wouldn't exist without these plugins. See [Why SmartMotion](https://
   native_search = true,              -- labels during / search
   count_behavior = "target",         -- "target" or "native" for j/k counts
   history_max_size = 20,             -- persistent history entries
+  open_folds_on_jump = true,         -- open folds at target position
+  save_to_jumplist = true,           -- save position to jumplist before jumping (j/k excluded to match native vim)
+  max_pins = 9,                      -- maximum pin slots
+  search_timeout_ms = 500,           -- auto-proceed after typing in search
+  search_idle_timeout_ms = 2000,     -- exit search with no input
+  yank_highlight_duration = 150,     -- yank flash duration (ms)
+  history_max_age_days = 30,         -- prune history entries older than this
 }
 ```
 
@@ -425,6 +434,8 @@ See [Configuration](https://github.com/FluxxField/smart-motion.nvim/wiki/Configu
 ## Documentation
 
 - [Presets Guide](https://github.com/FluxxField/smart-motion.nvim/wiki/Presets): every preset explained in detail
+- [Recipes](https://github.com/FluxxField/smart-motion.nvim/wiki/Recipes): customize built-in motions with practical examples
+- [Advanced Recipes](https://github.com/FluxxField/smart-motion.nvim/wiki/Advanced-Recipes): treesitter motions, text objects, and composable operators
 - [Migration Guide](https://github.com/FluxxField/smart-motion.nvim/wiki/Migration): coming from flash, leap, hop, or mini.jump
 - [Advanced Features](https://github.com/FluxxField/smart-motion.nvim/wiki/Advanced-Features): flow state, operator-pending, multi-window, history browser
 - [Building Custom Motions](https://github.com/FluxxField/smart-motion.nvim/wiki/Building-Custom-Motions): create your own with the pipeline API
